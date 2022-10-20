@@ -8,14 +8,11 @@ yandex_base_url = 'https://cloud-api.yandex.net/v1/disk/public/resources/downloa
  
 print("Название папки (по-английски):")
 dir_name = input()
-#dir_name = "Ener"
 base = "http://retrolib.narod.ru/"
 print("Окончание ссылки (после ...narod.ru/). Нужна ссылка на ПЕРВУЮ страницу:")
 input_url = input()
-#input_url = "book_s1.html"
 print("Количество страниц:")
 pages_num = int(input())
-#pages_num = 6
 tmp_url = base + input_url
 if (pages_num > 1):
     index = tmp_url.find('1')
@@ -40,7 +37,6 @@ books_num = pages_num*20
 counter = 1
 book_counter = 0
 while (True):
-    #print("tmp_url: ", tmp_url)
     for row in table.find_all('tr'):
         a = row.find_all('a', href = True)
         if (len(a) == 1):
@@ -49,7 +45,6 @@ while (True):
             except AttributeError:
                 row_name = str(row.find('dd'))    
             if (not row_name.startswith('[')):
-               # print('\nROW\n', row)
                 url = a[0]['href']
 
                 book_counter += 1
@@ -60,12 +55,7 @@ while (True):
                 
                 if (len(row_name) > 80):
                     row_name = row_name[:80]
-                name = row_name.replace('/', '') 
-                name = row_name.replace('\', '') 
-                name = name.replace('"', '') 
-                name = name.replace('.', '')
-                name = name.replace('<', '')
-                name = name.replace('>', '')
+                name = "".join(c for c in row_name if c.isalnum())
 
                 flag = True
                 i = 1
@@ -80,13 +70,11 @@ while (True):
                     url = base + url
                 if (url.startswith('http://clck.ru')):
                     continue    
-
-                #print("Book: ", name, "; url: ", url)    
+ 
                 if (url.startswith('http://retrolib.narod.ru')):
                     f = open(path + '/' + name + url[url.rfind('.'):], "wb")
-                    #print("URL:", url)
-                    #ufr = requests.get(url)
-                    #f.write(ufr.content)
+                    ufr = requests.get(url)
+                    f.write(ufr.content)
                     f.close()
                 elif (url.startswith('https://cloud.mail.ru')):
                     f = open(mail_ru_path + '/' + name + '.txt', 'w')
@@ -102,9 +90,8 @@ while (True):
                         continue
                     
                     f = open(path + '/tmp', "wb")
-                    #print("Download started/...")
-                    #download_response = requests.get(download_url)
-                    #f.write(download_response.content)
+                    download_response = requests.get(download_url)
+                    f.write(download_response.content)
                     f.close()
                     mime = magic.Magic(mime=True)
                     res = mime.from_file(path + '/tmp')
@@ -117,7 +104,6 @@ while (True):
     if (counter == pages_num + 1):
         break
     tmp_url = tmp_url[:index] + str(counter) + '.html'
-    #print ("new url:", tmp_url)
     r = requests.get(tmp_url)
 
     html = BeautifulSoup(r.text, 'lxml')
