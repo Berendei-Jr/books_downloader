@@ -44,7 +44,10 @@ while (True):
     for row in table.find_all('tr'):
         a = row.find_all('a', href = True)
         if (len(a) == 1):
-            row_name = row.b.text
+            try:
+                row_name = row.b.text
+            except AttributeError:
+                row_name = str(row.find('dd'))    
             if (not row_name.startswith('[')):
                # print('\nROW\n', row)
                 url = a[0]['href']
@@ -58,8 +61,11 @@ while (True):
                 if (len(row_name) > 80):
                     row_name = row_name[:80]
                 name = row_name.replace('/', '') 
+                name = row_name.replace('\', '') 
                 name = name.replace('"', '') 
                 name = name.replace('.', '')
+                name = name.replace('<', '')
+                name = name.replace('>', '')
 
                 flag = True
                 i = 1
@@ -79,8 +85,8 @@ while (True):
                 if (url.startswith('http://retrolib.narod.ru')):
                     f = open(path + '/' + name + url[url.rfind('.'):], "wb")
                     #print("URL:", url)
-                    ufr = requests.get(url)
-                    f.write(ufr.content)
+                    #ufr = requests.get(url)
+                    #f.write(ufr.content)
                     f.close()
                 elif (url.startswith('https://cloud.mail.ru')):
                     f = open(mail_ru_path + '/' + name + '.txt', 'w')
@@ -97,8 +103,8 @@ while (True):
                     
                     f = open(path + '/tmp', "wb")
                     #print("Download started/...")
-                    download_response = requests.get(download_url)
-                    f.write(download_response.content)
+                    #download_response = requests.get(download_url)
+                    #f.write(download_response.content)
                     f.close()
                     mime = magic.Magic(mime=True)
                     res = mime.from_file(path + '/tmp')
